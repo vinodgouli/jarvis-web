@@ -2,20 +2,113 @@
 <html>
 <head>
     <title>Jarvis Voice Assistant</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255,255,255,0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(0,0,0,0.3);
+            width: 400px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            padding: 12px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .send-btn {
+            background: #00c6ff;
+            color: white;
+        }
+
+        .send-btn:hover {
+            background: #0072ff;
+            transform: scale(1.05);
+        }
+
+        .voice-btn {
+            background: #ff416c;
+            color: white;
+        }
+
+        .voice-btn:hover {
+            background: #ff4b2b;
+            transform: scale(1.05);
+        }
+
+        #response {
+            margin-top: 20px;
+            font-size: 18px;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            min-height: 50px;
+        }
+
+        .glow {
+            animation: glow 1s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 10px #00c6ff; }
+            to { box-shadow: 0 0 25px #00c6ff; }
+        }
+    </style>
 </head>
-<body style="font-family: Arial; text-align:center;">
 
-<h1>Jarvis Assistant 🤖</h1>
+<body>
 
-<input id="msg" placeholder="Type or speak..." style="width:300px;">
-<button onclick="send()">Send</button>
-<button onclick="startVoice()">🎤 Speak</button>
+<div class="container">
+    <h1>🤖 Jarvis Assistant</h1>
 
-<p id="response"></p>
+    <input id="msg" placeholder="Type or speak...">
+
+    <button class="send-btn" onclick="send()">Send</button>
+    <button class="voice-btn" onclick="startVoice()">🎤 Speak</button>
+
+    <div id="response">Your response will appear here...</div>
+</div>
 
 <script>
 
-// SEND TEXT TO BACKEND
+// SEND TEXT
 function send(){
     let msg = document.getElementById("msg").value;
 
@@ -27,27 +120,28 @@ function send(){
     .then(res=>res.json())
     .then(data=>{
         document.getElementById("response").innerText = data.response;
-
-        // 🔊 SPEAK RESPONSE
         speak(data.response);
     });
 }
 
-// 🎤 VOICE INPUT
+// VOICE INPUT
 function startVoice(){
     let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     recognition.lang = "en-US";
+
+    document.querySelector(".container").classList.add("glow");
 
     recognition.onresult = function(event){
         let speech = event.results[0][0].transcript;
         document.getElementById("msg").value = speech;
         send();
+        document.querySelector(".container").classList.remove("glow");
     };
 
     recognition.start();
 }
 
-// 🔊 TEXT TO SPEECH
+// TEXT TO SPEECH
 function speak(text){
     let speech = new SpeechSynthesisUtterance(text);
     speech.lang = "en-US";
