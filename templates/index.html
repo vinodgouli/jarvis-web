@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Jarvis Voice Assistant</title>
+</head>
+<body style="font-family: Arial; text-align:center;">
+
+<h1>Jarvis Assistant 🤖</h1>
+
+<input id="msg" placeholder="Type or speak..." style="width:300px;">
+<button onclick="send()">Send</button>
+<button onclick="startVoice()">🎤 Speak</button>
+
+<p id="response"></p>
+
+<script>
+
+// SEND TEXT TO BACKEND
+function send(){
+    let msg = document.getElementById("msg").value;
+
+    fetch("/chat", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({message: msg})
+    })
+    .then(res=>res.json())
+    .then(data=>{
+        document.getElementById("response").innerText = data.response;
+
+        // 🔊 SPEAK RESPONSE
+        speak(data.response);
+    });
+}
+
+// 🎤 VOICE INPUT
+function startVoice(){
+    let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = "en-US";
+
+    recognition.onresult = function(event){
+        let speech = event.results[0][0].transcript;
+        document.getElementById("msg").value = speech;
+        send();
+    };
+
+    recognition.start();
+}
+
+// 🔊 TEXT TO SPEECH
+function speak(text){
+    let speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-US";
+    window.speechSynthesis.speak(speech);
+}
+
+</script>
+
+</body>
+</html>
